@@ -29,11 +29,11 @@ bool check_read(std::istream& r, std::ostream& w){
 	vector< coordinates > b_knight;			// location of black knight position
 	vector< coordinates > w_rook;			// location of white rook position
 	vector< coordinates > b_rook;			// location of black rook position
-	vector< coordinates > w_bishop;			// location of white bishop position
+ 	vector< coordinates > w_bishop;			// location of white bishop position
 	vector< coordinates > b_bishop;			// location of black bishop position
 
 
-	vector< coordinates > vec_positions [10] = { b_rook , b_knight, b_bishop, b_queen, b_pawn, w_pawn, w_rook, w_knight, w_bishop, w_queen };
+	vector< coordinates >* vec_positions [10] = { &b_rook , &b_knight, &b_bishop, &b_queen, &b_pawn, &w_pawn, &w_rook, &w_knight, &w_bishop, &w_queen };
 
 
 	for(int i = 0; i < 8; i++){					// loop through game board lines
@@ -65,6 +65,9 @@ bool check_read(std::istream& r, std::ostream& w){
 					break;
 
 				case 'k':						// record position of black king
+					// cout << "b_king[1]" << b_king[1] << endl;
+					assert(b_king[0]==-1);
+					assert(b_king[1]==-1);
 					b_king[0] = i;
 					b_king[1] = k;
 					break;
@@ -90,6 +93,8 @@ bool check_read(std::istream& r, std::ostream& w){
 					w_knight.push_back(tmp);
 					break;
 				case 'K': 						// record position of white king
+					assert(w_king[0]==-1);
+					assert(w_king[1]==-1);
 					w_king[0] = i;
 					w_king[1] = k;
 					break;
@@ -106,7 +111,8 @@ bool check_read(std::istream& r, std::ostream& w){
 
 	if(!valid_board) {
 		print_gameboard(); 
-		check_solve(w_king , b_king); 
+		// cout << "addr of vec_positions: " << (*(vec_positions[white_pawn])).size() << endl;
+		check_solve(vec_positions, w_king , b_king); 
 	}
 	return !valid_board;
 }
@@ -115,11 +121,25 @@ bool check_read(std::istream& r, std::ostream& w){
 //------------
 // check_solve()
 //------------
-void check_solve(int w_king [], int b_king[] ){
+void check_solve(vector <coordinates>* vec_positions [], int w_king [], int b_king[] ){
+	check_valid_board();
 	cout << "white king: (" << w_king[0] << "," << w_king[1] << ")" << endl;
 	cout << "black king: (" << b_king[0] << "," << b_king[1] << ")" << endl;
+	cout << "number of queens: " <<(*(vec_positions[white_queen])).size()  << endl;
+	// cout << "addr of vec_positions: " << vec_positions << endl;
+
+	cout << endl;
 }
 
+//------------
+// check_valid_board()
+//------------
+void check_valid_board(vector <coordinates>* vec_positions []) {
+	assert( (*(vec_positions[black_rook])).size() <= 2  );
+	assert( (*(vec_positions[black_knight])).size() <= 2  );
+	assert( (*(vec_positions[black_bishop])).size() <= 2  );
+	assert( (*(vec_positions[black_queen])).size() <= 1  );
+}
 
 //------------
 // print_gameboard()
