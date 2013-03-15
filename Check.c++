@@ -2,6 +2,8 @@
 #include <iostream>
 #include <string>
 #include <cassert>
+#include <stdlib.h>
+#include <stdio.h>
 #include <vector>
 
 
@@ -122,23 +124,139 @@ bool check_read(std::istream& r, std::ostream& w){
 // check_solve()
 //------------
 void check_solve(vector <coordinates>* vec_positions [], int w_king [], int b_king[] ){
-	check_valid_board();
-	cout << "white king: (" << w_king[0] << "," << w_king[1] << ")" << endl;
+	check_valid_board(vec_positions);				// Check to make sure all pieces on the board are valid
+	cout << "\nwhite king: (" << w_king[0] << "," << w_king[1] << ")" << endl;
 	cout << "black king: (" << b_king[0] << "," << b_king[1] << ")" << endl;
 	cout << "number of queens: " <<(*(vec_positions[white_queen])).size()  << endl;
-	// cout << "addr of vec_positions: " << vec_positions << endl;
 
-	cout << endl;
+	check_queen_positions(*(vec_positions[black_queen]) , w_king, b_king);	
+
+
+ 	cout << endl;
 }
 
 //------------
 // check_valid_board()
 //------------
 void check_valid_board(vector <coordinates>* vec_positions []) {
-	assert( (*(vec_positions[black_rook])).size() <= 2  );
+	cout << "calling check_valid_board()" << endl;
+
+	// Check to see that the board is valid for black and white pieces
+	assert( (*(vec_positions[black_rook])).size() <= 2  );	
 	assert( (*(vec_positions[black_knight])).size() <= 2  );
 	assert( (*(vec_positions[black_bishop])).size() <= 2  );
 	assert( (*(vec_positions[black_queen])).size() <= 1  );
+	assert( (*(vec_positions[black_pawn])).size() <= 8  );
+
+	assert( (*(vec_positions[white_pawn])).size() <= 8);
+	assert( (*(vec_positions[white_rook])).size() <= 2);	
+	assert( (*(vec_positions[white_knight])).size() <= 2);	
+	assert( (*(vec_positions[white_bishop])).size() <= 2);
+	assert( (*(vec_positions[white_queen])).size() <= 2);
+
+
+}
+
+
+//------------
+// check_queen_positions()
+//------------
+bool check_queen_positions(vector <coordinates> queen_coords, int w_king[] , int b_king[] ){
+	if(queen_coords.size() != 0){
+		int target_king [2] = {-1 , -1};							// Which king to check?
+
+		// TO_DO: ADD TRY CATCH FOR EXCEPTION.
+
+		// Set target king according to piece color
+		if(gameboard[queen_coords.at(0).at(0)][queen_coords.at(0).at(1)]  == 'Q'){
+			cout << "checking white queen.." << endl;
+			target_king[0] = b_king[0];
+			target_king[1] = b_king[1]; }
+
+		else if(gameboard[queen_coords.at(0).at(0)][queen_coords.at(0).at(1)] == 'q'){
+			cout << "checking black queen.." << endl;
+			target_king[0] = w_king[0];
+			target_king[1] = w_king[1]; }
+		else{
+			cout << "Error. Unknown piece detected." << endl;
+			exit(0); }
+
+ 		cout << "queen: (" << queen_coords.at(0).at(0) << "," << queen_coords.at(0).at(1) << ")" << endl;
+ 		cout << "target king: (" << target_king[0] << "," << target_king[1] << ")" << endl;
+
+
+ 		// TO_DO: Encapsulate this logic into one function which would check the direction of a piece given the coordinates. Such function would return a number 1 - 8 which represent a compass direction starting from North (N, NE, E, SE, S, SW, W, NW) in which the king resides
+
+ 		//Logic to determine the relative position fo the piece with the king on the board
+ 		if(queen_coords.at(0).at(0) > target_king[0]){
+ 			cout << "The king is above the queen on the board" << endl;
+ 			if(queen_coords.at(0).at(1) > target_king[1]){
+ 				cout << "The king is to the left of the queen" << endl;
+ 				// . . . K
+ 				// . . .
+ 				// . .
+ 				// Q
+
+ 			}
+ 			else if (queen_coords.at(0).at(1) < target_king[1]){
+ 				cout << "The king is to the right of the queen" << endl;
+ 				// . . . K
+ 				// . . .
+ 				// . .
+ 				// Q
+ 			}
+ 			else{
+ 				cout << "The king is vertical to the queen" << endl;
+ 				// K
+ 				// .
+ 				// .
+ 				// Q
+ 			}
+ 		}
+ 		else if(queen_coords.at(0).at(0) < target_king[0]){
+ 			   cout << "The king is lower than the queen on the board" << endl;
+ 			if(queen_coords.at(0).at(1) > target_king[1]){
+ 				cout << "The king is to the left of the queen" << endl;
+ 				// . . . Q
+ 				// . . .
+ 				// . .
+ 				// K
+ 			}
+ 			else if (queen_coords.at(0).at(1) < target_king[1]){
+ 				cout << "The king is to the right of the queen" << endl;
+  				// Q
+ 				// . . 
+ 				// . . .
+ 				// . . . K
+ 			}
+ 			else{
+ 				cout << "The king is vertical to the queen" << endl;
+ 				// Q
+ 				// .
+ 				// .
+ 				// K
+ 			}
+ 		}
+ 		else{
+ 			cout << "The king is horizontal to the queen on the board" << endl;
+  			if(queen_coords.at(0).at(1) > target_king[1]){
+ 				cout << "The king is to the left of the queen" << endl;
+ 				// . . . Q
+ 				// . . .
+ 				// . .
+ 				// K
+ 			}
+ 			else if (queen_coords.at(0).at(1) < target_king[1]){
+ 				cout << "The king is to the right of the queen" << endl;
+  				// Q
+ 				// . . 
+ 				// . . .
+ 				// . . . K
+ 			}
+ 		}
+
+	}
+	return false;
 }
 
 //------------
@@ -148,7 +266,7 @@ void check_valid_board(vector <coordinates>* vec_positions []) {
 void print_gameboard(){
 	cout << endl;
 	for(int i = 0; i < 8; i++){
-		for(int k = 0; k < 8 ; k++){
+	 	for(int k = 0; k < 8 ; k++){
 			cout << gameboard[i][k] << "";
 		}		
 		cout << endl;

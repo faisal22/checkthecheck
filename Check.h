@@ -6,6 +6,7 @@
 
 #include <iostream>
 #include <vector>	
+typedef std::vector <int> coordinates;
 // { &b_rook , &b_knight, &b_bishop, &b_queen, &b_pawn, &w_pawn, &w_rook, &w_knight, &w_bishop, &w_queen };
 
 static int black_rook = 0;
@@ -26,6 +27,10 @@ bool check_read(std::istream&, std::ostream&);
 
 void print_gameboard();
 
-void check_solve(std::vector <std::vector <int> >* [], int [], int [] );
+void check_solve(std::vector <coordinates>* [], int [], int [] );
+
+void check_valid_board(std::vector <coordinates >* []) ;
+
+bool check_queen_positions(std::vector <coordinates> , int [] , int[] );
 
 #endif // Check_h	
