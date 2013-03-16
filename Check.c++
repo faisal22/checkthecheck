@@ -42,7 +42,6 @@ bool check_read(std::istream& r, std::ostream& w){
 		r >> temp_line;							
 		for(int k = 0; k < 8 ; k++){			// loop through pieces
 			// check while reading, if piece at k is not a '.' , you're for sure not done with all boards
-			
 			if(valid_board && temp_line.at(k) != '.'){ valid_board = false; }
 			vector <int> tmp;
 			tmp.push_back(i); tmp.push_back(k);
@@ -101,6 +100,7 @@ bool check_read(std::istream& r, std::ostream& w){
 					w_king[1] = k;
 					break;
 			}	
+
 			gameboard[i][k] = temp_line.at(k);
 		}		
 	}
@@ -125,11 +125,12 @@ bool check_read(std::istream& r, std::ostream& w){
 //------------
 void check_solve(vector <coordinates>* vec_positions [], int w_king [], int b_king[] ){
 	check_valid_board(vec_positions);				// Check to make sure all pieces on the board are valid
-	cout << "\nwhite king: (" << w_king[0] << "," << w_king[1] << ")" << endl;
-	cout << "black king: (" << b_king[0] << "," << b_king[1] << ")" << endl;
-	cout << "number of queens: " <<(*(vec_positions[white_queen])).size()  << endl;
+	// cout << "\nwhite king: (" << w_king[0] << "," << w_king[1] << ")" << endl;
+	// cout << "black king: (" << b_king[0] << "," << b_king[1] << ")" << endl;
+	// cout << "number of queens: " <<(*(vec_positions[black_queen])).size()  << endl;
 
-	check_queen_positions(*(vec_positions[black_queen]) , w_king, b_king);	
+	check_queen(*(vec_positions[black_queen]) , w_king, b_king);	
+	check_queen(*(vec_positions[white_queen]) , w_king, b_king);	
 
 
  	cout << endl;
@@ -154,104 +155,223 @@ void check_valid_board(vector <coordinates>* vec_positions []) {
 	assert( (*(vec_positions[white_bishop])).size() <= 2);
 	assert( (*(vec_positions[white_queen])).size() <= 2);
 
+\
+}
+//------------
+// check_queen_position
+//------------
+bool check_queen(vector <coordinates> queen_coords, int w_king[] , int b_king[] ){
+	if(queen_coords.size()!=0){								// Check if there is a queen on the board
+		assert(queen_cords.size == 1);						// Make sure there is only 1 queen
+		cout << "calling check_queen().." << endl;
 
+		int temp_i = queen_coords.at(0).at(0);
+		int temp_j = queen_coords.at(0).at(1);
+		int target_king [2] = { get_target_king(queen_coords, w_king, b_king)[0] , get_target_king(queen_coords, w_king, b_king)[1] };
+
+		switch(check_piece_dir(queen_coords, w_king, b_king)){
+			case 1:			
+				// King is N of this queen
+				cout << "king is N of queen" << endl;
+				--temp_i;
+ 				while(gameboard[temp_i][temp_j] == '.' && temp_i != target_king[0] && temp_i > -2){
+					--temp_i;					
+				}
+				break;
+			case 2:			
+				// King is NE of queen
+				cout << "king is NE of queen" << endl;
+				--temp_i;
+				++temp_j;
+ 				while(gameboard[temp_i][temp_j] == '.' && temp_i != target_king[0] && temp_j != target_king[1] && temp_i > -1 && temp_j < 9){
+					--temp_i;	
+					++temp_j;				
+				}
+				break;
+
+			case 3:			
+				// King is E of queen
+				cout << "king is E of queen" << endl;
+				++temp_j;
+				while(gameboard[temp_i][temp_j] == '.' && temp_j < 9){
+					++temp_j;
+				}
+				break;
+
+			case 4:			
+				// King is SE of queen
+				cout << "King is SE of queen" << endl;
+				++temp_i;
+				++temp_j;
+				while(gameboard[temp_i][temp_j] == '.' && temp_j < 9 && temp_i < 9){
+					++temp_j;
+					++temp_i;
+				}
+				break;
+
+			case 5:
+				// King is S of queen
+				cout << "king is S of queen" << endl;
+				++temp_i;
+ 				while(gameboard[temp_i][temp_j] == '.' && temp_i != target_king[0] && temp_i < 9){
+					temp_i++;					
+				}
+				break;
+
+			case 6:			
+				// King is SW of queen
+				cout << "King is SW of queen" << endl;
+				++temp_i;
+				--temp_j;
+				while(gameboard[temp_i][temp_j] == '.' && temp_j > -1 && temp_i < 9){
+					++temp_i;
+					--temp_j;
+				}
+				break;
+
+			case 7:			
+				// King is W of queen
+				cout << "King is W of queen" << endl;
+				--temp_j;
+				while(gameboard[temp_i][temp_j] == '.' && temp_j > -1){
+					--temp_j;
+				}
+				break;
+
+			case 8:			
+				// King is NW of queen
+				cout << "King is NW of queen" << endl;
+				--temp_i;
+				--temp_j;
+				while(gameboard[temp_i][temp_j] == '.' && temp_j < 9 && temp_i > -1){
+					--temp_i;
+					--temp_j;
+				}
+				break;
+			default:
+				cout << "Error. Invalid direction." << endl;
+				exit(0);
+				break;	
+		}
+		if(temp_i == target_king[0] && temp_j == target_king[1]){
+			cout << "there was a check" << endl;
+			// return false;
+		}
+		else{
+			cout << "there is no check" << endl;
+		}
+	}
+	return true;		
+}
+//------------
+// get_target_king()
+//------------
+int* get_target_king(vector <coordinates> piece_coords, int w_king[] , int b_king[]){
+	// cout << "calling get_target_king" << endl;
+	int target_king[2] = {-1,-1};
+	// Set target king according to piece color
+	if(isupper(gameboard[piece_coords.at(0).at(0)][piece_coords.at(0).at(1)])){
+		// cout << "checking white piece.." << endl;
+		target_king[0] = b_king[0];
+		target_king[1] = b_king[1]; }
+	else if(islower(gameboard[piece_coords.at(0).at(0)][piece_coords.at(0).at(1)])){
+		// cout << "checking black piece.." << endl;
+		target_king[0] = w_king[0];
+		target_king[1] = w_king[1]; }
+	/*else{
+		cout << "Error. Unknown piece detected." << endl;
+		exit(0); }*/
+
+	return target_king;
 }
 
-
 //------------
-// check_queen_positions()
+// check_piece_dir()
 //------------
-bool check_queen_positions(vector <coordinates> queen_coords, int w_king[] , int b_king[] ){
-	if(queen_coords.size() != 0){
+int check_piece_dir(vector <coordinates> piece_coords, int w_king[] , int b_king[] ){
+	if(piece_coords.size() != 0){
 		int target_king [2] = {-1 , -1};							// Which king to check?
+
 
 		// TO_DO: ADD TRY CATCH FOR EXCEPTION.
 
-		// Set target king according to piece color
-		if(gameboard[queen_coords.at(0).at(0)][queen_coords.at(0).at(1)]  == 'Q'){
-			cout << "checking white queen.." << endl;
-			target_king[0] = b_king[0];
-			target_king[1] = b_king[1]; }
 
-		else if(gameboard[queen_coords.at(0).at(0)][queen_coords.at(0).at(1)] == 'q'){
-			cout << "checking black queen.." << endl;
-			target_king[0] = w_king[0];
-			target_king[1] = w_king[1]; }
-		else{
-			cout << "Error. Unknown piece detected." << endl;
-			exit(0); }
+ 		target_king[0] = get_target_king(piece_coords, w_king, b_king)[0];
+ 		target_king[1] = get_target_king(piece_coords, w_king, b_king)[1];
 
- 		cout << "queen: (" << queen_coords.at(0).at(0) << "," << queen_coords.at(0).at(1) << ")" << endl;
- 		cout << "target king: (" << target_king[0] << "," << target_king[1] << ")" << endl;
-
+ 		// cout << "piece: (" << piece_coords.at(0).at(0) << "," << piece_coords.at(0).at(1) << ")" << endl;
+ 		// cout << "target king: (" << target_king[0] << "," << target_king[1] << ")" << endl;
 
  		// TO_DO: Encapsulate this logic into one function which would check the direction of a piece given the coordinates. Such function would return a number 1 - 8 which represent a compass direction starting from North (N, NE, E, SE, S, SW, W, NW) in which the king resides
 
  		//Logic to determine the relative position fo the piece with the king on the board
- 		if(queen_coords.at(0).at(0) > target_king[0]){
- 			cout << "The king is above the queen on the board" << endl;
- 			if(queen_coords.at(0).at(1) > target_king[1]){
- 				cout << "The king is to the left of the queen" << endl;
+ 		if(piece_coords.at(0).at(0) > target_king[0]){
+ 			// cout << "The king is above the piece on the board" << endl;
+ 			if(piece_coords.at(0).at(1) > target_king[1]){
+ 				// cout << "The king is to the left of the piece" << endl;
  				// . . . K
  				// . . .
  				// . .
  				// Q
+ 				return NORTHWEST;
 
  			}
- 			else if (queen_coords.at(0).at(1) < target_king[1]){
- 				cout << "The king is to the right of the queen" << endl;
+ 			else if (piece_coords.at(0).at(1) < target_king[1]){
+ 				// cout << "The king is to the right of the piece" << endl;
  				// . . . K
  				// . . .
  				// . .
  				// Q
+ 				return NORTHEAST;
  			}
  			else{
- 				cout << "The king is vertical to the queen" << endl;
+ 				// cout << "The king is vertical to the piece" << endl;
  				// K
  				// .
  				// .
  				// Q
+ 				return NORTH;
  			}
  		}
- 		else if(queen_coords.at(0).at(0) < target_king[0]){
- 			   cout << "The king is lower than the queen on the board" << endl;
- 			if(queen_coords.at(0).at(1) > target_king[1]){
- 				cout << "The king is to the left of the queen" << endl;
+ 		else if(piece_coords.at(0).at(0) < target_king[0]){
+ 			   // cout << "The king is lower than the piece on the board" << endl;
+ 			if(piece_coords.at(0).at(1) > target_king[1]){
+ 				// cout << "The king is to the left of the piece" << endl;
  				// . . . Q
  				// . . .
  				// . .
  				// K
+ 				return SOUTHWEST;
  			}
- 			else if (queen_coords.at(0).at(1) < target_king[1]){
- 				cout << "The king is to the right of the queen" << endl;
+ 			else if (piece_coords.at(0).at(1) < target_king[1]){
+ 				// cout << "The king is to the right of the piece" << endl;
   				// Q
  				// . . 
  				// . . .
  				// . . . K
+ 				return SOUTHEAST;
  			}
  			else{
- 				cout << "The king is vertical to the queen" << endl;
+ 				// cout << "The king is vertical to the piece" << endl;
  				// Q
  				// .
  				// .
  				// K
+ 				return SOUTH;
  			}
  		}
  		else{
- 			cout << "The king is horizontal to the queen on the board" << endl;
-  			if(queen_coords.at(0).at(1) > target_king[1]){
- 				cout << "The king is to the left of the queen" << endl;
- 				// . . . Q
- 				// . . .
- 				// . .
- 				// K
+ 			// cout << "The king is horizontal to the piece on the board" << endl;
+  			if(piece_coords.at(0).at(1) > target_king[1]){
+ 				// cout << "The king is to the left of the piece" << endl;
+ 				// K . . . Q
+ 				return WEST;
+ 				 
  			}
- 			else if (queen_coords.at(0).at(1) < target_king[1]){
- 				cout << "The king is to the right of the queen" << endl;
-  				// Q
- 				// . . 
- 				// . . .
- 				// . . . K
+ 			else if (piece_coords.at(0).at(1) < target_king[1]){
+ 				// cout << "The king is to the right of the piece" << endl;
+  				// Q . . . K
+  				return EAST;
  			}
  		}
 

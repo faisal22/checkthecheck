@@ -20,6 +20,15 @@ static int white_knight = 7;
 static int white_bishop = 8;
 static int white_queen = 9;
 
+static int NORTH = 1;
+static int NORTHEAST = 2;
+static int EAST = 3;
+static int SOUTHEAST = 4;
+static int SOUTH = 5;
+static int SOUTHWEST = 6;
+static int WEST = 7;
+static int NORTHWEST = 8;
+
 static char gameboard [8][8];
 
 
@@ -31,6 +40,10 @@ void check_solve(std::vector <coordinates>* [], int [], int [] );
 
 void check_valid_board(std::vector <coordinates >* []) ;
 
-bool check_queen_positions(std::vector <coordinates> , int [] , int[] );
+int check_piece_dir(std::vector <coordinates> , int [] , int[] );
+
+bool check_queen(std::vector <coordinates> , int [] , int[] );
+
+int* get_target_king(std::vector <coordinates> , int [] , int []);
 
 #endif // Check_h	
